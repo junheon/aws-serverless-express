@@ -19,6 +19,28 @@ const server = awsServerlessExpress.createServer(app)
 exports.handler = (event, context) => awsServerlessExpress.proxy(server, event, context)
 ```
 
+```js
+// NestJS
+// lambda.ts
+import * as awsServerlessExpress from 'aws-serverless-express';
+import * as awsServerlessExpressMiddleware from 'aws-serverless-express/middleware';
+
+import { NestFactory } from '@nestjs/core';
+import { ApplicationModule } from './app.module';
+
+export const handler = async (event, context) => {
+  const app = await NestFactory.create(ApplicationModule);
+  await app.init();
+
+  app.use(awsServerlessExpressMiddleware.eventContext());
+
+  const server = app.getHttpServer();
+
+  awsServerlessExpress.applyServer(server);
+  awsServerlessExpress.proxy(server, event, context);
+};
+```
+
 [Package and create your Lambda function](http://docs.aws.amazon.com/lambda/latest/dg/nodejs-create-deployment-pkg.html), then configure a simple proxy API using Amazon API Gateway and integrate it with your Lambda function.
 
 ## Quick Start/Example
